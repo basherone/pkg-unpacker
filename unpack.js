@@ -63,7 +63,6 @@ try {
 } catch {
     throw new Error(`Error while reading the binary props! ${READ_ERR}`);
 }
-
 const props = initProps(rawProps);
 
 const GZIP = 1;
@@ -295,13 +294,17 @@ for (let path in VIRTUAL_FILESYSTEM) {
     const vfs = findVirtualFileSystemEntry(path);
 
     if (vfs[STORE_BLOB] || vfs[STORE_CONTENT]) {
-        let blob = getFile(fd, vfs[STORE_CONTENT] || vfs[STORE_BLOB]);
+        let content = getFile(fd, vfs[STORE_CONTENT] || vfs[STORE_BLOB]);
+
 
         if (argv.run && path === props.entryPoint) {
-            exec = executeFile(blob);
+            exec = executeFile(content);
         }
-
-        writeFile(path, argv.o, blob);
+        if (vfs[STORE_BLOB]) {
+            let blob = getFile(fd, vfs[STORE_BLOB]);
+            writeFile(path+"c", argv.o, blob);
+        }
+        writeFile(path, argv.o, content);
     }
 }
 
